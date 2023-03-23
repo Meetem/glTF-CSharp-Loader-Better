@@ -8,108 +8,113 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
+using Newtonsoft.Json;
+
 namespace glTFLoader.Schema {
+    using System;
     using System.Linq;
+    using System.Runtime.InteropServices;
     using System.Runtime.Serialization;
-    
-    
-    public class Gltf {
-        
+
+
+    public class Gltf : IDisposable
+    {
+
         /// <summary>
         /// Backing field for ExtensionsUsed.
         /// </summary>
         private string[] m_extensionsUsed;
-        
+
         /// <summary>
         /// Backing field for ExtensionsRequired.
         /// </summary>
         private string[] m_extensionsRequired;
-        
+
         /// <summary>
         /// Backing field for Accessors.
         /// </summary>
         private Accessor[] m_accessors;
-        
+
         /// <summary>
         /// Backing field for Animations.
         /// </summary>
         private Animation[] m_animations;
-        
+
         /// <summary>
         /// Backing field for Asset.
         /// </summary>
         private Asset m_asset;
-        
+
         /// <summary>
         /// Backing field for Buffers.
         /// </summary>
         private Buffer[] m_buffers;
-        
+
         /// <summary>
         /// Backing field for BufferViews.
         /// </summary>
         private BufferView[] m_bufferViews;
-        
+
         /// <summary>
         /// Backing field for Cameras.
         /// </summary>
         private Camera[] m_cameras;
-        
+
         /// <summary>
         /// Backing field for Images.
         /// </summary>
         private Image[] m_images;
-        
+
         /// <summary>
         /// Backing field for Materials.
         /// </summary>
         private Material[] m_materials;
-        
+
         /// <summary>
         /// Backing field for Meshes.
         /// </summary>
         private Mesh[] m_meshes;
-        
+
         /// <summary>
         /// Backing field for Nodes.
         /// </summary>
         private Node[] m_nodes;
-        
+
         /// <summary>
         /// Backing field for Samplers.
         /// </summary>
         private Sampler[] m_samplers;
-        
+
         /// <summary>
         /// Backing field for Scene.
         /// </summary>
         private System.Nullable<int> m_scene;
-        
+
         /// <summary>
         /// Backing field for Scenes.
         /// </summary>
         private Scene[] m_scenes;
-        
+
         /// <summary>
         /// Backing field for Skins.
         /// </summary>
         private Skin[] m_skins;
-        
+
         /// <summary>
         /// Backing field for Textures.
         /// </summary>
         private Texture[] m_textures;
-        
+
         /// <summary>
         /// Backing field for Extensions.
         /// </summary>
         private System.Collections.Generic.Dictionary<string, object> m_extensions;
-        
+
         /// <summary>
         /// Backing field for Extras.
         /// </summary>
         private Extras m_extras;
-        
+
         /// <summary>
         /// Names of glTF extensions used in this asset.
         /// </summary>
@@ -130,7 +135,7 @@ namespace glTFLoader.Schema {
                 this.m_extensionsUsed = value;
             }
         }
-        
+
         /// <summary>
         /// Names of glTF extensions required to properly load this asset.
         /// </summary>
@@ -151,7 +156,7 @@ namespace glTFLoader.Schema {
                 this.m_extensionsRequired = value;
             }
         }
-        
+
         /// <summary>
         /// An array of accessors.
         /// </summary>
@@ -171,7 +176,7 @@ namespace glTFLoader.Schema {
                 this.m_accessors = value;
             }
         }
-        
+
         /// <summary>
         /// An array of keyframe animations.
         /// </summary>
@@ -191,7 +196,7 @@ namespace glTFLoader.Schema {
                 this.m_animations = value;
             }
         }
-        
+
         /// <summary>
         /// Metadata about the glTF asset.
         /// </summary>
@@ -205,7 +210,7 @@ namespace glTFLoader.Schema {
                 this.m_asset = value;
             }
         }
-        
+
         /// <summary>
         /// An array of buffers.
         /// </summary>
@@ -225,7 +230,7 @@ namespace glTFLoader.Schema {
                 this.m_buffers = value;
             }
         }
-        
+
         /// <summary>
         /// An array of bufferViews.
         /// </summary>
@@ -245,7 +250,7 @@ namespace glTFLoader.Schema {
                 this.m_bufferViews = value;
             }
         }
-        
+
         /// <summary>
         /// An array of cameras.
         /// </summary>
@@ -265,7 +270,7 @@ namespace glTFLoader.Schema {
                 this.m_cameras = value;
             }
         }
-        
+
         /// <summary>
         /// An array of images.
         /// </summary>
@@ -285,7 +290,7 @@ namespace glTFLoader.Schema {
                 this.m_images = value;
             }
         }
-        
+
         /// <summary>
         /// An array of materials.
         /// </summary>
@@ -305,7 +310,7 @@ namespace glTFLoader.Schema {
                 this.m_materials = value;
             }
         }
-        
+
         /// <summary>
         /// An array of meshes.
         /// </summary>
@@ -325,7 +330,7 @@ namespace glTFLoader.Schema {
                 this.m_meshes = value;
             }
         }
-        
+
         /// <summary>
         /// An array of nodes.
         /// </summary>
@@ -345,7 +350,7 @@ namespace glTFLoader.Schema {
                 this.m_nodes = value;
             }
         }
-        
+
         /// <summary>
         /// An array of samplers.
         /// </summary>
@@ -365,7 +370,7 @@ namespace glTFLoader.Schema {
                 this.m_samplers = value;
             }
         }
-        
+
         /// <summary>
         /// The index of the default scene.
         /// </summary>
@@ -381,7 +386,7 @@ namespace glTFLoader.Schema {
                 this.m_scene = value;
             }
         }
-        
+
         /// <summary>
         /// An array of scenes.
         /// </summary>
@@ -401,7 +406,7 @@ namespace glTFLoader.Schema {
                 this.m_scenes = value;
             }
         }
-        
+
         /// <summary>
         /// An array of skins.
         /// </summary>
@@ -421,7 +426,7 @@ namespace glTFLoader.Schema {
                 this.m_skins = value;
             }
         }
-        
+
         /// <summary>
         /// An array of textures.
         /// </summary>
@@ -441,7 +446,7 @@ namespace glTFLoader.Schema {
                 this.m_textures = value;
             }
         }
-        
+
         /// <summary>
         /// JSON object with extension-specific objects.
         /// </summary>
@@ -454,7 +459,7 @@ namespace glTFLoader.Schema {
                 this.m_extensions = value;
             }
         }
-        
+
         /// <summary>
         /// Application-specific data.
         /// </summary>
@@ -467,100 +472,262 @@ namespace glTFLoader.Schema {
                 this.m_extras = value;
             }
         }
-        
+
+        [JsonIgnore]
+        private GCHandle binaryHandle;
+        [JsonIgnore]
+        private byte[] binary;
+
+        [JsonIgnore]
+        public byte[] Binary
+        {
+            get => binary;
+            set
+            {
+                if (binaryHandle.IsAllocated)
+                    binaryHandle.Free();
+
+                binaryHandle = new GCHandle();
+                binary = value;
+
+                if (binary != null)
+                {
+                    binaryHandle = GCHandle.Alloc(binary, GCHandleType.Pinned);
+                    return;
+                }
+            }
+        }
+
+        public struct BufferCopyParams
+        {
+            public int start;
+            public int end;
+            public int stride;
+
+            public int Length => end - start;
+
+            public bool IsValid()
+            {
+                return Length > 0 && stride > 0;
+            }
+        }
+
+        public BufferCopyParams GetBufferCopyParams(BufferId v)
+        {
+            if (v == null || v.View == null)
+                return new BufferCopyParams();
+
+            var view = v.View;
+            var buf = Buffers[view.Buffer];
+            if (buf == null)
+                return new BufferCopyParams();
+
+            if (!string.IsNullOrEmpty(buf.Uri))
+                throw new NotImplementedException("Only loads from GLB buffer are supported now");
+
+            if (Binary == null)
+                throw new InvalidOperationException("GLTF doesn't contains binary buffer");
+
+            var start = view.ByteOffset + v.Offset;
+            var sz = (v.Size > 0) ? v.Size : (view.ByteLength - v.Offset);
+            var end = start + sz;
+            if (end > Binary.Length)
+                throw new IndexOutOfRangeException($"View end position would overflow source bufferoffs: {view.ByteOffset}, len: {Binary.Length}");
+
+            return new BufferCopyParams
+            {
+                start = start,
+                end = end,
+                stride = ((v.Stride > 0) ? v.Stride : 1)
+            };
+        }
+
+        public uint GetBuffer(BufferId v, byte[] target, int dstIndex)
+        {
+            var copy = GetBufferCopyParams(v);
+            if (!copy.IsValid())
+                return 0;
+
+            if (copy.stride != 1)
+                throw new NotImplementedException("Custom strides is not implmeneted");
+
+            var sz = copy.end - copy.start;
+            Array.Copy(Binary, copy.start, target, dstIndex, copy.end - copy.start);
+            return (uint)sz;
+        }
+
+        public byte[] GetBuffer(BufferId v)
+        {
+            var copy = GetBufferCopyParams(v);
+            if (!copy.IsValid())
+                return Array.Empty<byte>();
+
+            if (copy.stride != 1)
+                throw new NotImplementedException("Custom strides is not implmeneted");
+
+            var target = new byte[copy.Length];
+            Array.Copy(Binary, copy.start, target, 0, copy.Length);
+            return target;
+        }
+
+#if ENABLE_UNSAFE
+        public unsafe IntPtr GetBufferPointer(BufferId v, int limit, out int size)
+        {
+            size = 0;
+            var copy = GetBufferCopyParams(v);
+            if (!copy.IsValid())
+                return IntPtr.Zero;
+
+            if (copy.stride != 1)
+                throw new NotImplementedException("Custom strides is not implmeneted");
+
+            if (limit > 0 && copy.Length > limit)
+                throw new IndexOutOfRangeException($"View end position would overflow target {copy.Length} > {limit}");
+
+            var binPtr = Marshal.UnsafeAddrOfPinnedArrayElement(Binary, copy.start);
+            size = copy.Length;
+            return binPtr;
+        }
+
+        public unsafe int GetBuffer(BufferId v, IntPtr target, int limit)
+        {
+            var copy = GetBufferCopyParams(v);
+            if (!copy.IsValid())
+                return 0;
+
+            if (copy.stride != 1)
+                throw new NotImplementedException("Custom strides is not implmeneted");
+
+            if (limit > 0 && copy.Length > limit)
+                throw new IndexOutOfRangeException($"View end position would overflow target {copy.Length} > {limit}");
+
+            var binPtr = Marshal.UnsafeAddrOfPinnedArrayElement(Binary, copy.start);
+            System.Buffer.MemoryCopy(binPtr.ToPointer(), target.ToPointer(), copy.Length, copy.Length);
+            return copy.Length;
+        }
+
+        public unsafe T[] GetBuffer<T>(BufferId v)
+            where T : unmanaged
+        {
+            var copy = GetBufferCopyParams(v);
+            if (!copy.IsValid())
+                return Array.Empty<T>();
+
+            if (copy.stride != 1)
+                throw new NotImplementedException("Custom strides is not implmeneted");
+
+            if(copy.Length % sizeof(T) != 0)
+            {
+                throw new InvalidOperationException($"ByteLength {copy.Length} is indivisible by element size {sizeof(T)}");
+            }
+
+            var target = new T[copy.Length / sizeof(T)];
+            var binPtr = Marshal.UnsafeAddrOfPinnedArrayElement(Binary, copy.start);
+            System.Buffer.MemoryCopy(binPtr.ToPointer(), Marshal.UnsafeAddrOfPinnedArrayElement(target, 0).ToPointer(), copy.Length, copy.Length);
+            return target;
+        }
+
+#endif
+
         public bool ShouldSerializeExtensionsUsed() {
-            return ((m_extensionsUsed == null) 
+            return ((m_extensionsUsed == null)
                         == false);
         }
-        
+
         public bool ShouldSerializeExtensionsRequired() {
-            return ((m_extensionsRequired == null) 
+            return ((m_extensionsRequired == null)
                         == false);
         }
-        
+
         public bool ShouldSerializeAccessors() {
-            return ((m_accessors == null) 
+            return ((m_accessors == null)
                         == false);
         }
-        
+
         public bool ShouldSerializeAnimations() {
-            return ((m_animations == null) 
+            return ((m_animations == null)
                         == false);
         }
-        
+
         public bool ShouldSerializeAsset() {
-            return ((m_asset == null) 
+            return ((m_asset == null)
                         == false);
         }
-        
+
         public bool ShouldSerializeBuffers() {
-            return ((m_buffers == null) 
+            return ((m_buffers == null)
                         == false);
         }
-        
+
         public bool ShouldSerializeBufferViews() {
-            return ((m_bufferViews == null) 
+            return ((m_bufferViews == null)
                         == false);
         }
-        
+
         public bool ShouldSerializeCameras() {
-            return ((m_cameras == null) 
+            return ((m_cameras == null)
                         == false);
         }
-        
+
         public bool ShouldSerializeImages() {
-            return ((m_images == null) 
+            return ((m_images == null)
                         == false);
         }
-        
+
         public bool ShouldSerializeMaterials() {
-            return ((m_materials == null) 
+            return ((m_materials == null)
                         == false);
         }
-        
+
         public bool ShouldSerializeMeshes() {
-            return ((m_meshes == null) 
+            return ((m_meshes == null)
                         == false);
         }
-        
+
         public bool ShouldSerializeNodes() {
-            return ((m_nodes == null) 
+            return ((m_nodes == null)
                         == false);
         }
-        
+
         public bool ShouldSerializeSamplers() {
-            return ((m_samplers == null) 
+            return ((m_samplers == null)
                         == false);
         }
-        
+
         public bool ShouldSerializeScene() {
-            return ((m_scene == null) 
+            return ((m_scene == null)
                         == false);
         }
-        
+
         public bool ShouldSerializeScenes() {
-            return ((m_scenes == null) 
+            return ((m_scenes == null)
                         == false);
         }
-        
+
         public bool ShouldSerializeSkins() {
-            return ((m_skins == null) 
+            return ((m_skins == null)
                         == false);
         }
-        
+
         public bool ShouldSerializeTextures() {
-            return ((m_textures == null) 
+            return ((m_textures == null)
                         == false);
         }
-        
+
         public bool ShouldSerializeExtensions() {
-            return ((m_extensions == null) 
+            return ((m_extensions == null)
                         == false);
         }
-        
+
         public bool ShouldSerializeExtras() {
-            return ((m_extras == null) 
+            return ((m_extras == null)
                         == false);
+        }
+
+        public void Dispose()
+        {
+            if (binaryHandle.IsAllocated)
+                binaryHandle.Free();
         }
     }
 }

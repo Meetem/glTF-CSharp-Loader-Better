@@ -74,7 +74,57 @@ namespace glTFLoader.Schema {
         /// Backing field for Extras.
         /// </summary>
         private Extras m_extras;
-        
+
+        public static int GetComponentSize(ComponentTypeEnum type)
+        {
+            switch (type)
+            {
+                case ComponentTypeEnum.BYTE:
+                case ComponentTypeEnum.UNSIGNED_BYTE:
+                    return 1;
+                case ComponentTypeEnum.SHORT:
+                case ComponentTypeEnum.UNSIGNED_SHORT:
+                    return 2;
+                case ComponentTypeEnum.UNSIGNED_INT:
+                case ComponentTypeEnum.FLOAT:
+                    return 4;
+            }
+
+            return 0;
+        }
+
+        public static int GetTypeCount(TypeEnum type)
+        {
+            switch (type)
+            {
+                case TypeEnum.SCALAR:
+                    return 1;
+                case TypeEnum.VEC2:
+                    return 2;
+                case TypeEnum.VEC3:
+                    return 3;
+                case TypeEnum.VEC4:
+                    return 4;
+                case TypeEnum.MAT2:
+                    return (2 * 2);
+                case TypeEnum.MAT3:
+                    return (3 * 3);
+                case TypeEnum.MAT4:
+                    return (4 * 4);
+            }
+
+            return 0;
+        }
+
+        public static int GetElementSize(ComponentTypeEnum componentType, TypeEnum type)
+        {
+            return GetComponentSize(componentType) * GetTypeCount(type);
+        }
+
+        public int GetElementSize() => GetElementSize(ComponentType, Type);
+        public int GetTypeCount() => GetTypeCount(Type);
+        public int GetComponentSize() => GetComponentSize(ComponentType);
+
         /// <summary>
         /// The index of the bufferView.
         /// </summary>

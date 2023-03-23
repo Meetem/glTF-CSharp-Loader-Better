@@ -61,16 +61,22 @@ namespace glTFLoader
             stream.Position = 0; // restart read position
 
             string fileData;
+            byte[] bin = null;
             if (binaryFile)
             {
-                fileData = ParseBinary(stream);
+                fileData = ParseBinary(stream, out bin);
+
             }
             else
             {
                 fileData = ParseText(stream);
             }
 
-            return JsonConvert.DeserializeObject<Gltf>(fileData);
+            var gltf = JsonConvert.DeserializeObject<Gltf>(fileData);
+            if(gltf != null)
+                gltf.Binary = bin;
+
+            return gltf;
         }
 
         private static string ParseText(Stream stream)
@@ -81,30 +87,36 @@ namespace glTFLoader
             }
         }
 
-        private static string ParseBinary(Stream stream)
+        private static string ParseBinary(Stream stream, out byte[] binData)
         {
             using (BinaryReader binaryReader = new BinaryReader(stream))
             {
                 ReadBinaryHeader(binaryReader);
 
                 var data = ReadBinaryChunk(binaryReader, CHUNKJSON);
-
-                return Encoding.UTF8.GetString(data);
+                var jsonString = Encoding.UTF8.GetString(data);
+                binData = ReadBinaryChunk(binaryReader, CHUNKBIN);
+                return jsonString;
             }
         }
 
         private static byte[] ReadBinaryChunk(BinaryReader binaryReader, uint format)
         {
+            if ((binaryReader.BaseStream.Position + 4) > binaryReader.BaseStream.Length)
+                return null;
+
             while (true) // keep reading until EndOfFile exception
             {
                 uint chunkLength = binaryReader.ReadUInt32();
+                if (chunkLength == 0)
+                    return null;
+
                 if ((chunkLength & 3) != 0)
                 {
                     throw new InvalidDataException($"The chunk must be padded to 4 bytes: {chunkLength}");
                 }
 
                 uint chunkFormat = binaryReader.ReadUInt32();
-
                 var data = binaryReader.ReadBytes((int)chunkLength);
 
                 if (chunkFormat == format) return data;
