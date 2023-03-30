@@ -467,7 +467,245 @@ namespace glTFLoader.Schema {
                 this.m_extras = value;
             }
         }
+<<<<<<< Updated upstream
         
+=======
+
+        [JsonIgnore]
+        private GCHandle binaryHandle;
+        [JsonIgnore]
+        private byte[] binary;
+
+        [JsonIgnore]
+        public byte[] Binary
+        {
+            get => binary;
+            set
+            {
+                if (binaryHandle.IsAllocated)
+                    binaryHandle.Free();
+
+                binaryHandle = new GCHandle();
+                binary = value;
+
+                if (binary != null)
+                {
+                    binaryHandle = GCHandle.Alloc(binary, GCHandleType.Pinned);
+                    return;
+                }
+            }
+        }
+
+        public struct BufferCopyParams
+        {
+            public int startByte;
+            public int elementCount;
+            public int elementSize;
+            public int stride;
+
+            public int NumBytes => elementCount * elementSize;
+            public int NumBytesStrided => elementCount * stride;
+
+            public bool IsValid()
+            {
+                return NumBytes > 0 && stride > 0;
+            }
+        }
+
+        public BufferCopyParams GetBufferCopyParams(BufferId v)
+        {
+            if (v == null || v.View == null)
+                return new BufferCopyParams();
+
+            var view = v.View;
+            var buf = Buffers[view.Buffer];
+            if (buf == null)
+                return new BufferCopyParams();
+
+            if (!string.IsNullOrEmpty(buf.Uri))
+                throw new NotImplementedException("Only loads from GLB buffer are supported now");
+
+            if (Binary == null)
+                throw new InvalidOperationException("GLTF doesn't contains binary buffer");
+
+            var start = v.Offset;
+            var fullBytesSize = v.Count * v.Stride;
+
+            if (start + fullBytesSize > Binary.Length)
+                throw new IndexOutOfRangeException($"View end position would overflow source bufferoffs: {view.ByteOffset}, len: {Binary.Length}");
+
+            return new BufferCopyParams
+            {
+                startByte = start,
+                elementCount = v.Count,
+                stride = v.Stride,
+                elementSize = v.ElementSize
+            };
+        }
+
+        public uint GetBuffer(BufferId v, byte[] target, int dstIndex)
+        {
+            var copy = GetBufferCopyParams(v);
+            if (!copy.IsValid())
+                return 0;
+
+            if (copy.stride != 1)
+                throw new NotImplementedException("Custom strides is not implmeneted");
+
+            if(copy.stride == 1)
+            {
+                var sz = copy.elementCount * copy.elementSize;
+                Array.Copy(Binary, copy.startByte, target, dstIndex, sz);
+                return (uint)sz;
+            }
+
+            int currentDstPtr = dstIndex;
+            var currentSrcPtr = copy.startByte;
+
+            for(int i = 0; i < copy.elementCount; i++)
+            {
+                for(int j = 0; j < copy.elementSize; j++)
+                    target[currentDstPtr + j] = Binary[currentSrcPtr + j];
+
+                currentSrcPtr += copy.stride;
+                currentDstPtr += copy.elementSize;
+            }
+
+            return (uint)(copy.elementCount * copy.elementSize);
+        }
+
+        public byte[] GetBuffer(BufferId v)
+        {
+            var copy = GetBufferCopyParams(v);
+            if (!copy.IsValid())
+                return Array.Empty<byte>();
+
+            var totalSize = copy.elementCount * copy.elementSize;
+            var newArray = new byte[totalSize];
+            GetBuffer(v, newArray, 0);
+            return newArray;
+        }
+
+#if ENABLE_UNSAFE
+        public unsafe IntPtr GetBufferPointer(BufferId v, out BufferCopyParams copyParams)
+        {
+            copyParams = GetBufferCopyParams(v);
+            if (!copyParams.IsValid())
+                return IntPtr.Zero;
+
+            return Marshal.UnsafeAddrOfPinnedArrayElement(Binary, copyParams.startByte);
+        }
+
+        /// <summary>
+        /// Copies data to <paramref name="dst"/> with given stride
+        /// </summary>
+        /// <param name="v">BufferId</param>
+        /// <param name="dst">Target buffer</param>
+        /// <param name="dstSizeLimitBytes">Maximum allowed target size (in bytes)</param>
+        /// <returns></returns>
+        public unsafe uint CopyToPointer(BufferCopyParams copy, IntPtr dst, int dstSizeLimitBytes)
+        {
+            if (!copy.IsValid())
+                return 0;
+
+            if (copy.startByte + copy.NumBytesStrided > Binary.Length)
+                throw new InvalidOperationException($"This copy will overflow source buffer");
+
+            var numTotalBytes = copy.NumBytes;
+            if (numTotalBytes > dstSizeLimitBytes)
+                throw new InvalidOperationException($"This copy will overflow destination buffer");
+
+            var bufPtr = (byte*)Marshal.UnsafeAddrOfPinnedArrayElement(Binary, copy.startByte);
+            if(copy.stride == copy.elementSize)
+            {
+                System.Buffer.MemoryCopy(bufPtr, dst.ToPointer(), numTotalBytes, numTotalBytes);
+                return (uint)numTotalBytes;
+            }
+            
+            var dstPtr = (byte*)dst;
+            var emSize = copy.elementSize;
+            var stride = copy.stride;
+
+            for(int i = 0; i < copy.elementCount; i++)
+            {
+                //There should be more performant copy.
+                for(int j = 0; j < emSize; j++)
+                    dstPtr[j] = bufPtr[j];
+
+                bufPtr += stride;
+                dstPtr += emSize;
+            }
+
+            return (uint)numTotalBytes;
+        }
+
+        /// <summary>
+        /// Copies data to <paramref name="dst"/> with given stride
+        /// </summary>
+        /// <param name="v">BufferId</param>
+        /// <param name="dst">Target buffer</param>
+        /// <param name="dstSizeLimitBytes">Maximum allowed target size (in bytes)</param>
+        /// <returns></returns>
+        public unsafe uint CopyToPointer(BufferId v, IntPtr dst, int dstSizeLimitBytes)
+        {
+            var copy = GetBufferCopyParams(v);
+            return CopyToPointer(copy, dst, dstSizeLimitBytes);
+        }
+
+        public unsafe uint GetBuffer<T>(BufferId v, T[] ptr, int dstIndex)
+            where T : unmanaged
+        {
+            var copy = GetBufferCopyParams(v);
+            if (!copy.IsValid())
+                return 0;
+
+            if(copy.elementSize == sizeof(T))
+            {
+                var numCopies = copy.elementCount;
+                if(copy.stride == 1 || copy.stride)
+            }
+
+            if (copy.elementSize > sizeof(T))
+            {
+
+            }
+                throw new InvalidOperationException($"ElementsSize {copy.elementSize} > sizeof({typeof(T)})");
+
+            if (sizeof(T) % copy.elementSize != 0)
+                throw new InvalidOperationException($"sizeof({typeof(T)}) indivisible by element size {copy.elementSize}");
+
+            var numElementsPerCopy = sizeof(T) / copy.elementSize;
+            var totalNumberOfCopies = (copy.elementSize * copy.elementCount) / sizeof(T);
+
+            if(dstIndex + totalNumberOfCopies > ptr.Length)
+                throw new ArgumentOutOfRangeException(nameof(ptr), $"Array dstIndex + totalNumberOfCopies will overflow dst array");
+
+            if (copy.startByte + (copy.elementCount * copy.stride) > Binary.Length)
+                throw new ArgumentOutOfRangeException(nameof(Binary), $"Copy will overflow source array");
+
+            var binPtr = (byte*)Marshal.UnsafeAddrOfPinnedArrayElement(Binary, copy.startByte);
+            var dstPtr = (T*)Marshal.UnsafeAddrOfPinnedArrayElement(ptr, dstIndex);
+
+            if(copy.stride == 1 && copy.elementSize == 1)
+            {
+                var totalBytesCopy = totalNumberOfCopies * sizeof(T);
+                System.Buffer.MemoryCopy(binPtr, dstPtr, totalBytesCopy, totalBytesCopy);
+                return (uint)totalNumberOfCopies;
+            }
+
+            if(copy.NumBytes % sizeof(T) != 0)
+            {
+                throw new InvalidOperationException($"ByteLength {copy.NumBytes} is indivisible by element size {sizeof(T)}");
+            }
+
+            var target = new T[copy.NumBytes / sizeof(T)];
+            System.Buffer.MemoryCopy(binPtr.ToPointer(), Marshal.UnsafeAddrOfPinnedArrayElement(target, 0).ToPointer(), copy.NumBytes, copy.NumBytes);
+            return target;
+        }
+
+#endif
+
+>>>>>>> Stashed changes
         public bool ShouldSerializeExtensionsUsed() {
             return ((m_extensionsUsed == null) 
                         == false);
