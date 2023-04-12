@@ -8,6 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
+using System.IO;
 using Newtonsoft.Json;
 
 namespace glTFLoader.Schema {
@@ -531,6 +532,7 @@ namespace glTFLoader.Schema {
             var start = view.ByteOffset + v.Offset;
             var sz = (v.Size > 0) ? v.Size : (view.ByteLength - v.Offset);
             var end = start + sz;
+
             if (end > Binary.Length)
                 throw new IndexOutOfRangeException($"View end position would overflow source bufferoffs: {view.ByteOffset}, len: {Binary.Length}");
 
@@ -540,6 +542,19 @@ namespace glTFLoader.Schema {
                 end = end,
                 stride = ((v.Stride > 0) ? v.Stride : 1)
             };
+        }
+
+        public Stream GetBufferStream(BufferId v)
+        {
+            var copy = GetBufferCopyParams(v);
+            if (!copy.IsValid())
+                return null;
+
+            if (copy.stride != 1)
+                throw new NotImplementedException("Custom strides is not implmeneted");
+
+            var sz = copy.end - copy.start;
+            return new MemoryStream(Binary, copy.start, sz, true, true);
         }
 
         public uint GetBuffer(BufferId v, byte[] target, int dstIndex)

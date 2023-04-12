@@ -11,6 +11,21 @@ namespace glTFLoader.Schema
         public int Size { get; protected set; }
         public int Stride { get; protected set; }
 
+        public bool IsValid()
+        {
+            return View != null && Size > 0 && Stride >= 0;
+        }
+
+        public override string ToString()
+        {
+            return $"BufferId: ViewSize: {View?.ByteLength ?? -1}, Offset: {Offset}, Size {Size}, Stride {Stride}";
+        }
+
+        public static implicit operator bool(BufferId _this)
+        {
+            return _this.IsValid();
+        }
+
         public BufferId(BufferView view)
         {
             View = view;

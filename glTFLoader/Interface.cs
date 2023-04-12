@@ -31,24 +31,21 @@ namespace glTFLoader
         /// </summary>
         /// <param name="filePath">Source file path to a gltf/glb model</param>
         /// <returns><code>Schema.Gltf</code> model</returns>
-        public static Gltf LoadModel(string filePath)
+        public static Gltf LoadModel(string filePath, bool loadBinaryBuffer = true)
         {
             var path = Path.GetFullPath(filePath);
 
             using (Stream stream = File.OpenRead(filePath))
             {
-                return LoadModel(stream);
+                return LoadModel(stream, loadBinaryBuffer);
             }
         }
 
-        /// <summary>
-        /// Reads a <code>Schema.Gltf</code> model from a stream
-        /// </summary>
-        /// <param name="stream">Readable stream to a gltf/glb model</param>
-        /// <returns><code>Schema.Gltf</code> model</returns>
-        public static Gltf LoadModel(Stream stream)
+        public static bool IsBinaryModel(Stream stream, bool revertPosition)
         {
-            bool binaryFile = false;
+            long pos = 0;
+            if (revertPosition)
+                pos = stream.Position;
 
             uint magic = 0;
             magic |= (uint)stream.ReadByte();
@@ -56,16 +53,26 @@ namespace glTFLoader
             magic |= (uint)stream.ReadByte() << 16;
             magic |= (uint)stream.ReadByte() << 24;
 
-            if (magic == GLTFHEADER) binaryFile = true;
+            if (revertPosition)
+                stream.Position = pos;
 
-            stream.Position = 0; // restart read position
+            return magic == GLTFHEADER;
+        }
+
+        /// <summary>
+        /// Reads a <code>Schema.Gltf</code> model from a stream
+        /// </summary>
+        /// <param name="stream">Readable stream to a gltf/glb model</param>
+        /// <returns><code>Schema.Gltf</code> model</returns>
+        public static Gltf LoadModel(Stream stream, bool loadBinaryBuffer)
+        {
+            bool binaryFile = IsBinaryModel(stream, true);
 
             string fileData;
             byte[] bin = null;
             if (binaryFile)
             {
-                fileData = ParseBinary(stream, out bin);
-
+                fileData = ParseBinary(stream, loadBinaryBuffer, out bin);
             }
             else
             {
@@ -79,7 +86,7 @@ namespace glTFLoader
             return gltf;
         }
 
-        private static string ParseText(Stream stream)
+        public static string ParseText(Stream stream)
         {
             using (StreamReader streamReader = new StreamReader(stream))
             {
@@ -87,40 +94,76 @@ namespace glTFLoader
             }
         }
 
-        private static string ParseBinary(Stream stream, out byte[] binData)
+        public static string ParseBinary(Stream stream, bool loadBinaryBuffer, out byte[] binData)
         {
+            binData = null;
             using (BinaryReader binaryReader = new BinaryReader(stream))
             {
                 ReadBinaryHeader(binaryReader);
 
                 var data = ReadBinaryChunk(binaryReader, CHUNKJSON);
                 var jsonString = Encoding.UTF8.GetString(data);
-                binData = ReadBinaryChunk(binaryReader, CHUNKBIN);
+
+                if (loadBinaryBuffer)
+                    binData = ReadBinaryChunk(binaryReader, CHUNKBIN);
+
                 return jsonString;
             }
         }
 
-        private static byte[] ReadBinaryChunk(BinaryReader binaryReader, uint format)
+        public static byte[] ReadBinaryChunk(BinaryReader binaryReader, uint format)
         {
             if ((binaryReader.BaseStream.Position + 4) > binaryReader.BaseStream.Length)
                 return null;
 
             while (true) // keep reading until EndOfFile exception
             {
-                uint chunkLength = binaryReader.ReadUInt32();
-                if (chunkLength == 0)
-                    return null;
+                var chunkLength = ReadChunkLength(binaryReader, true);
+                var chunkFormat = ReadChunkFormat(binaryReader);
 
-                if ((chunkLength & 3) != 0)
-                {
-                    throw new InvalidDataException($"The chunk must be padded to 4 bytes: {chunkLength}");
-                }
-
-                uint chunkFormat = binaryReader.ReadUInt32();
-                var data = binaryReader.ReadBytes((int)chunkLength);
-
-                if (chunkFormat == format) return data;
+                // If chunk is not of our type, just advance the stream, without allocating data.
+                if (chunkFormat != format)
+                    binaryReader.BaseStream.Position += chunkLength;
+                else
+                    return binaryReader.ReadBytes((int)chunkLength);
             }
+        }
+
+        public static bool ReadChunkLengthAndFormat(BinaryReader binaryReader, out uint length, out uint format)
+        {
+            length = 0;
+            format = 0;
+
+            if ((binaryReader.BaseStream.Position + 8) > binaryReader.BaseStream.Length)
+                return false;
+
+            var cl = ReadChunkLength(binaryReader, false);
+            if (cl < 0 || (cl % 4) != 0)
+                return false;
+
+            length = (uint)cl;
+            format = ReadChunkFormat(binaryReader);
+            return true;
+        }
+
+        public static long ReadChunkLength(BinaryReader binaryReader, bool throwOnInvalid)
+        {
+            if ((binaryReader.BaseStream.Position + 4) > binaryReader.BaseStream.Length)
+                return -1;
+
+            var len = binaryReader.ReadUInt32();
+            if (throwOnInvalid && (len % 4) != 0)
+                throw new InvalidDataException($"The chunk must be padded to 4 bytes: {len}");
+
+            return len;
+        }
+
+        public static uint ReadChunkFormat(BinaryReader binaryReader)
+        {
+            if ((binaryReader.BaseStream.Position + 4) > binaryReader.BaseStream.Length)
+                throw new InvalidDataException($"Insufficient data amount, need at least 4 bytes");
+
+            return binaryReader.ReadUInt32();
         }
 
         /// <summary>
