@@ -23,6 +23,9 @@ namespace glTFLoader.Schema
 
         public static implicit operator bool(BufferId _this)
         {
+            if (_this == null)
+                return false;
+
             return _this.IsValid();
         }
 
